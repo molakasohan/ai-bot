@@ -1,8 +1,61 @@
+import os
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Mapping, Optional
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_FILE = BASE_DIR / "assistant.db"
-NOTES_FILE = BASE_DIR / "notes.txt"
+
+
+@dataclass(frozen=True)
+class AssistantConfig:
+    base_dir: Path
+    data_dir: Path
+    db_file: Path
+    notes_file: Path
+
+
+def _resolve_path(value: str, relative_to: Path) -> Path:
+    path = Path(value).expanduser()
+    if not path.is_absolute():
+        path = relative_to / path
+    return path.resolve()
+
+
+def _environment_path(
+    environment: Mapping[str, str], name: str, relative_to: Path
+) -> Optional[Path]:
+    value = environment.get(name)
+    if value is None:
+        return None
+    if not value.strip():
+        raise ValueError(f"{name} must not be empty.")
+    return _resolve_path(value, relative_to)
+
+
+def load_config(environ: Optional[Mapping[str, str]] = None) -> AssistantConfig:
+    """Build path settings from environment variables."""
+    environment = os.environ if environ is None else environ
+    base_dir = BASE_DIR.resolve()
+    data_dir = _environment_path(environment, "AI_BOT_DATA_DIR", base_dir) or base_dir
+    db_file = _environment_path(environment, "AI_BOT_DB_FILE", data_dir)
+    notes_file = _environment_path(environment, "AI_BOT_NOTES_FILE", data_dir)
+    db_file = db_file or data_dir / "assistant.db"
+    notes_file = notes_file or data_dir / "notes.txt"
+
+    if db_file == notes_file:
+        raise ValueError("AI_BOT_DB_FILE and AI_BOT_NOTES_FILE must be different paths.")
+
+    return AssistantConfig(
+        base_dir=base_dir,
+        data_dir=data_dir,
+        db_file=db_file,
+        notes_file=notes_file,
+    )
+
+
+CONFIG = load_config()
+DB_FILE = CONFIG.db_file
+NOTES_FILE = CONFIG.notes_file
 
 LANGUAGES = {
     "english": "en-IN",

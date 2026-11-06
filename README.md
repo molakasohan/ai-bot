@@ -53,6 +53,15 @@ py -3 .\voice_assistant.py --wake jarvis
 
 Tasks and custom commands are stored in the local `assistant.db` SQLite database. Notes are appended to `notes.txt`. These files are created in the project folder when the assistant saves data, and are not included in Git.
 
+You can change their locations with environment variables. `AI_BOT_DATA_DIR` sets the data folder (relative paths are resolved from the project folder); `AI_BOT_DB_FILE` and `AI_BOT_NOTES_FILE` override individual file paths (relative paths are resolved from the data folder). For example, in PowerShell:
+
+```powershell
+$env:AI_BOT_DATA_DIR = "$HOME\Documents\ai-bot-data"
+py -3 .\voice_assistant.py
+```
+
+By default, the assistant continues to use `assistant.db` and `notes.txt` in the project folder.
+
 ## Project layout
 
 - `voice_assistant.py` starts the program.

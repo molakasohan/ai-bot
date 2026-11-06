@@ -39,7 +39,11 @@ py -3 .\voice_assistant.py --wake jarvis
 - `open YouTube`
 - `open notepad`
 - `search Python tutorials`
-- `play relaxing music` — opens YouTube search results; choose a result to play it
+- `search YouTube for relaxing music`
+- `search GitHub for Python projects`
+- `find directions to the airport on Maps`
+- `play relaxing music` — opens YouTube Music search results; choose a result to play it
+- `play Bohemian Rhapsody on YouTube Music` — searches YouTube Music for that song
 - `add task finish my homework`
 - `show tasks`
 - `take a note remember this idea`
@@ -48,6 +52,8 @@ py -3 .\voice_assistant.py --wake jarvis
 - `what time is it`
 - `help`
 - `stop`
+
+Voice `play <song>` commands open YouTube Music search results; select a result to start playback. Site-specific search is also available for YouTube, Google, Gmail, GitHub, LinkedIn, Maps, Naukri, and Stack Overflow. For sites without a configured search link, such as WhatsApp and Claude, open the site and use its own search interface.
 
 ## Where your data goes
 

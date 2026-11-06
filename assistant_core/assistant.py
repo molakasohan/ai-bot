@@ -9,7 +9,13 @@ import urllib.parse
 import webbrowser
 from datetime import datetime
 
-from .config import NUM_WORDS, SITES, WIN_APPS
+from .config import (
+    NUM_WORDS,
+    SITES,
+    SITE_SEARCH_URLS,
+    WIN_APPS,
+    YOUTUBE_MUSIC_SEARCH_URL,
+)
 
 
 def safe_calc(expr):
@@ -162,7 +168,8 @@ class VoiceAssistant:
         if lowered == "help":
             self.speech.speak(
                 "Try: open YouTube, open notepad, search Python tutorials, "
-                "play music, add task, show tasks, take a note, set timer for 5 minutes, "
+                "search YouTube for music, search GitHub for Python, play music, "
+                "add task, show tasks, take a note, set timer for 5 minutes, "
                 "what time is it, calculate 12 times 8, or teach. Say stop to finish."
             )
             return True
@@ -181,13 +188,34 @@ class VoiceAssistant:
                 self.open_app(name)
             return True
 
-        match = re.match(r"play (.+?)(?: on youtube)?$", lowered)
+        match = re.match(
+            r"(?:search|find|look up)(?: for)?\s+(.+?)\s+(?:on|in)\s+(.+)",
+            lowered,
+        )
         if match:
-            query = match.group(1)
-            self.open_url(
-                "https://www.youtube.com/results?search_query=" + urllib.parse.quote(query),
-                query,
+            query, site_name = match.groups()
+            site = self._site_key(site_name)
+            if site:
+                self.search_site(site, query)
+                return True
+
+        match = re.match(
+            r"(?:search|find|look up)\s+(.+?)\s+for\s+(.+)",
+            lowered,
+        )
+        if match:
+            site = self._site_key(match.group(1))
+            if site:
+                self.search_site(site, match.group(2))
+                return True
+
+        match = re.match(r"play (.+?)(?: on youtube(?: music)?)?$", lowered)
+        if match:
+            query = match.group(1).strip()
+            search_url = YOUTUBE_MUSIC_SEARCH_URL.format(
+                query=urllib.parse.quote(query, safe="")
             )
+            self.open_url(search_url, f"{query} on YouTube Music")
             return True
 
         match = re.match(r"(?:search|google|look up|find)(?: for)? (.+)", lowered)
@@ -286,3 +314,25 @@ class VoiceAssistant:
         self.speech.speak("I don't know that yet. Say teach to train me, or I can search Google.")
         webbrowser.open("https://www.google.com/search?q=" + urllib.parse.quote(text))
         return True
+
+    @staticmethod
+    def _site_key(name):
+        key = re.sub(r"[^a-z0-9]", "", name.lower())
+        if key == "googlemaps":
+            key = "maps"
+        return key if key in SITES else None
+
+    def search_site(self, site, query):
+        search_url = SITE_SEARCH_URLS.get(site)
+        if search_url is None:
+            self.speech.speak(f"Searching {site} isn't supported yet.")
+            return
+
+        if site == "naukri":
+            encoded_query = urllib.parse.quote(query.strip().replace(" ", "-"), safe="-")
+        else:
+            encoded_query = urllib.parse.quote(query.strip(), safe="")
+        self.open_url(
+            search_url.format(query=encoded_query),
+            f"{site} results for {query}",
+        )

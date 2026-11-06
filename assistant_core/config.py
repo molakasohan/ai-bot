@@ -90,6 +90,19 @@ SITES = {
     "stackoverflow": "https://stackoverflow.com",
 }
 
+SITE_SEARCH_URLS = {
+    "youtube": "https://www.youtube.com/results?search_query={query}",
+    "google": "https://www.google.com/search?q={query}",
+    "gmail": "https://mail.google.com/mail/u/0/#search/{query}",
+    "github": "https://github.com/search?q={query}",
+    "linkedin": "https://www.linkedin.com/search/results/all/?keywords={query}",
+    "maps": "https://www.google.com/maps/search/?api=1&query={query}",
+    "naukri": "https://www.naukri.com/{query}-jobs",
+    "stackoverflow": "https://stackoverflow.com/search?q={query}",
+}
+
+YOUTUBE_MUSIC_SEARCH_URL = "https://music.youtube.com/search?q={query}"
+
 WIN_APPS = {
     "notepad": "notepad",
     "calculator": "calc",
